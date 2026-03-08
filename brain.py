@@ -21,11 +21,10 @@ GRAIN_TYPES = ["Maize", "Sorghum", "Wheat"]
 SCENARIOS = ["Normal", "Aflatoxin_Mold", "Insect_Parasite"]
 
 RISK_MAP = {
-    "Normal": {"level": "Safe", "threat": "No Threat Detected", "color": "green"},
-    "Aflatoxin_Mold": {"level": "Critical", "threat": "Aflatoxin / Mold Risk Detected", "color": "red"},
-    "Insect_Parasite": {"level": "Warning", "threat": "Weevil / Insect Infestation Detected", "color": "orange"},
+    "Normal": {"risk_level": "Safe", "threat_type": "No Threat Detected", "color": "green"},
+    "Aflatoxin_Mold": {"risk_level": "Critical", "threat_type": "Aflatoxin / Mold Risk Detected", "color": "red"},
+    "Insect_Parasite": {"risk_level": "Warning", "threat_type": "Weevil / Insect Infestation Detected", "color": "orange"},
 }
-
 # ── Synthetic Data Generation ─────────────────────────────────────────────────
 def generate_synthetic_data(n_rows: int = 1000, save_path: str = CSV_PATH) -> pd.DataFrame:
     """
@@ -59,16 +58,16 @@ def generate_synthetic_data(n_rows: int = 1000, save_path: str = CSV_PATH) -> pd
                     co2      = rng.uniform(400, 800, n)
 
             elif scenario == "Aflatoxin_Mold":
-                # High humidity triggers mold; CO2 rises slowly over days
-                temp     = rng.uniform(25, 38, n)
-                humidity = rng.uniform(75, 95, n)        # >75% — critical threshold
-                co2      = rng.uniform(900, 1500, n)     # Slow metabolic CO2 rise
+                # High humidity (>75%) is the KILLER signal for mold/aflatoxin
+                temp     = rng.uniform(26, 40, n)
+                humidity = rng.uniform(76, 98, n)        # Stricter: Always above 75%
+                co2      = rng.uniform(950, 1600, n)     # Moderate metabolic rise
 
             else:  # Insect_Parasite
-                # Rapid CO2 spike from insect respiration; humidity relatively stable
-                temp     = rng.uniform(22, 35, n)
-                humidity = rng.uniform(50, 72, n)        # Stable humidity
-                co2      = rng.uniform(1500, 3000, n)    # Sharp CO2 spike
+                # Massive CO2 spike is the KILLER signal for insects/weevils
+                temp     = rng.uniform(24, 36, n)
+                humidity = rng.uniform(45, 70, n)        # Keep humidity lower so it doesn't look like mold
+                co2      = rng.uniform(1600, 4500, n)    # Stronger spike for clear detection
 
             for i in range(n):
                 records.append({

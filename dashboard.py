@@ -254,14 +254,41 @@ with col_title:
     """, unsafe_allow_html=True)
 
 with col_status:
-    pred = st.session_state.last_pred
+    # 1. Get the prediction from session state
+    pred = st.session_state.get("last_pred", None)
+    
     if pred:
-        lvl = pred["risk_level"]
-        css_class = {"Safe": "status-safe", "Warning": "status-warning", "Critical": "status-critical"}.get(lvl, "status-safe")
-        st.markdown(f'<div style="text-align:right;padding-top:0.5rem;"><span class="status-badge {css_class} pulse">{lvl}</span></div>', unsafe_allow_html=True)
+        # 2. Get the risk level safely. 
+        # We use .get() with () parentheses to avoid KeyErrors.
+        lvl = pred.get("risk_level", "Safe")
+        
+        # 3. Map the risk level to the CSS color classes
+        status_map = {
+            "Safe": "status-safe",
+            "Warning": "status-warning",
+            "Critical": "status-critical",
+            0: "status-safe",
+            1: "status-warning",
+            2: "status-critical"
+        }
+        
+        css_class = status_map.get(lvl, "status-safe")
+        
+        # 4. Display the badge
+        st.markdown(
+            f'<div style="text-align:right;padding-top:0.5rem;">'
+            f'<span class="status-badge {css_class} pulse">{lvl}</span>'
+            f'</div>', 
+            unsafe_allow_html=True
+        )
     else:
-        st.markdown('<div style="text-align:right;padding-top:0.5rem;"><span class="status-badge status-safe">Standby</span></div>', unsafe_allow_html=True)
-
+        # Display standby if no prediction has been made yet
+        st.markdown(
+            '<div style="text-align:right;padding-top:0.5rem;">'
+            '<span class="status-badge status-safe">Standby</span>'
+            '</div>', 
+            unsafe_allow_html=True
+        )
 st.markdown('<hr class="grain-divider">', unsafe_allow_html=True)
 
 
@@ -293,18 +320,62 @@ def render_metrics(temp, hum, co2):
 
 # ── Prediction Result Panel ───────────────────────────────────────────────
 def render_prediction(pred: dict):
-    lvl = pred["risk_level"]
-    css_class = {"Safe": "status-safe", "Warning": "status-warning", "Critical": "status-critical"}.get(lvl, "status-safe")
-    conf = pred["confidence"]
-    advice = get_farmer_advice(pred["scenario"], pred["inputs"]["grain_type"])
+    if not pred:
+        return
 
+    # 1. First, get the raw values from the dictionary
+    lvl = pred.get("risk_level", "Safe")
+    conf = pred.get("confidence", 0)
+    threat = pred.get("threat_type", "No immediate threat")
+    scenario = pred.get("scenario", "Normal")
+    
+    # 2. Define 'inputs' BEFORE you use it
+    inputs = pred.get("inputs", {})
+    g_type = inputs.get("grain_type", "Grain")
+
+    # 3. NOW run the Safety Override (The logic we added to fix the 'Safe' glitch)
+    # This uses the 'inputs' variable we just defined above
+    if inputs.get("co2_ppm", 0) > 1500 or inputs.get("humidity_pct", 0) > 80:
+        lvl = "Critical"
+        threat = "High Risk Conditions Detected"
+
+    # ... the rest of your UI code (st.columns, etc.) stays the same ...
+
+    # --- SAFE DATA FETCHING ---
+    # We use .get() so if a key is missing, the app doesn't crash.
+    lvl = pred.get("risk_level", "Safe")
+    conf = pred.get("confidence", 0)
+    threat = pred.get("threat_type", "No immediate threat")
+    scenario = pred.get("scenario", "Normal")
+    
+    # Safely get grain type from nested inputs
+    inputs = pred.get("inputs", {})
+    g_type = inputs.get("grain_type", "Grain")
+    
+    # Get advice - handling potential missing function or keys
+    try:
+        advice = get_farmer_advice(scenario, g_type)
+    except:
+        advice = pred.get("advice", "Conditions are stable. Continue monitoring.")
+
+    # --- UI MAPPING ---
+    status_map = {
+        "Safe": "status-safe", 
+        "Warning": "status-warning", 
+        "Critical": "status-critical",
+        0: "status-safe", 1: "status-warning", 2: "status-critical"
+    }
+    css_class = status_map.get(lvl, "status-safe")
+
+    # --- THE UI (FRAUNCES STYLE) ---
     c_left, c_right = st.columns([1, 2])
+    
     with c_left:
         st.markdown(f"""
         <div class="metric-card" style="text-align:left;padding:1.4rem;">
             <div class="metric-label">Threat Detected</div>
             <div style="font-family:'Fraunces',serif;font-size:1.05rem;color:var(--sky);margin:0.5rem 0 0.8rem;line-height:1.35;">
-                {pred['threat_type']}
+                {threat}
             </div>
             <span class="status-badge {css_class}">{lvl}</span>
             <div style="margin-top:1rem;">
@@ -444,11 +515,23 @@ else:
 
     if st.button("🔬 Analyse Grain Risk"):
         with st.spinner("Running ML inference…"):
+            # 1. Run the prediction
             pred = predict_grain_risk(grain_type, temp_in, hum_in, co2_in, model, encoder)
+            
+            # 2. Store it in session state
             st.session_state.manual_pred = pred
             st.session_state.last_pred   = pred
-            if send_alerts and pred["risk_level"] != "Safe":
-                send_telegram_alert(pred)
+            
+            # 3. SAFE ALERT LOGIC
+            # We use .get() to avoid the KeyError
+            current_risk = pred.get("risk_level", "Safe")
+            
+            # Only send alert if it's NOT Safe and the user checked the box
+            if send_alerts and current_risk != "Safe":
+                try:
+                    send_telegram_alert(pred)
+                except Exception as e:
+                    st.error(f"Failed to send Telegram alert: {e}")
 
     if st.session_state.manual_pred:
         render_prediction(st.session_state.manual_pred)

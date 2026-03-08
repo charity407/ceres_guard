@@ -1,19 +1,17 @@
-# GrainGuard AI — Post-Harvest Protection System
-# Optimized for HP EliteBook (8GB RAM) — lightweight stack
+# GrainGuard AI — 2026 Stable Stack for Python 3.13
+# Core ML & Data
+numpy>=2.2.0
+pandas>=2.3.0
+scikit-learn>=1.6.0
+joblib>=1.4.2
 
-# ── Core ML & Data ────────────────────────────────────────────────────────────
-scikit-learn==1.4.2
-pandas==2.2.2
-numpy==1.26.4
-joblib==1.4.2
+# Backend API
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+pydantic>=2.8.0
 
-# ── Backend API ───────────────────────────────────────────────────────────────
-fastapi==0.111.0
-uvicorn[standard]==0.29.0
-pydantic==2.7.1
+# Dashboard UI
+streamlit>=1.38.0
 
-# ── Dashboard UI ──────────────────────────────────────────────────────────────
-streamlit==1.35.0
-
-# ── Telegram Alerts ───────────────────────────────────────────────────────────
-requests==2.32.2
+# Telegram Alerts
+requests>=2.32.3
