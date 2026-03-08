@@ -1,4 +1,4 @@
-# 🌾 GrainGuard AI — Predictive Grain Post-Harvest Protection System
+# 🌾 CeresGuard AI — Predictive Grain Post-Harvest Protection System
 
 Detect invisible storage threats (Mold, Aflatoxin, Weevils) before they become visible.
 Built for Kenyan smallholder farmers. Targets 10–30% reduction in post-harvest loss.
