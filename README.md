@@ -119,7 +119,7 @@ API docs available at: http://localhost:8000/docs
 
 ## 🌍 Impact
 
-- **Target users**: Kenyan smallholder maize, sorghum, wheat farmers
+- **Target users**: Kenyan maize, sorghum, wheat farmers
 - **Problem**: 10–30% post-harvest loss from undetected mold & pests
 - **Solution**: Low-cost IoT sensors + ML → early warning → actionable SMS/Telegram advice
 - **Hardware**: Optimized for HP EliteBook 8GB RAM (no GPU required)
