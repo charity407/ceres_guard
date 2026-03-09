@@ -1,4 +1,4 @@
-# GrainGuard AI — 2026 Stable Stack for Python 3.13
+# CeresGuard AI — 2026 Stable Stack for Python 3.13
 # Core ML & Data
 numpy>=2.2.0
 pandas>=2.3.0

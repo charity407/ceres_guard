@@ -1,5 +1,5 @@
 """
-dashboard.py — GrainGuard AI Dashboard (Streamlit)
+dashboard.py — CeresGuard AI Dashboard (Streamlit)
 Predictive Grain Post-Harvest Protection System
 """
 
@@ -11,7 +11,7 @@ import sys
 
 # ── Page Config (MUST be first Streamlit call) ─────────────────────────────
 st.set_page_config(
-    page_title="GrainGuard AI",
+    page_title="CeresGuard AI",
     page_icon="🌾",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -209,7 +209,7 @@ if "manual_pred"  not in st.session_state: st.session_state.manual_pred  = None
 with st.sidebar:
     st.markdown("""
     <div class="brand-header">
-        <div class="brand-title">🌾 GrainGuard</div>
+        <div class="brand-title">🌾 CeresGuard</div>
         <div class="brand-sub">Post-Harvest AI System</div>
     </div>
     """, unsafe_allow_html=True)
@@ -576,6 +576,6 @@ else:
 st.markdown('<hr class="grain-divider">', unsafe_allow_html=True)
 st.markdown("""
 <div style="text-align:center;font-size:0.6rem;color:rgba(232,237,228,0.2);letter-spacing:0.12em;text-transform:uppercase;padding-bottom:1rem;">
-    GrainGuard AI · Built for Kenyan Smallholder Farmers · Reducing Post-Harvest Loss
+    CeresGuard AI · Built for Kenyan Farmers · Reducing Post-Harvest Loss
 </div>
 """, unsafe_allow_html=True)

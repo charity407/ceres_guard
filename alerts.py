@@ -117,7 +117,7 @@ def format_alert_message(prediction: dict) -> str:
         f"━━━━━━━━━━━━━━━━━━━━━\n"
         f"{advice}\n"
         f"━━━━━━━━━━━━━━━━━━━━━\n"
-        f"_Powered by GrainGuard AI_"
+        f"_Powered by CeresGuard AI_"
     )
     return message
 
