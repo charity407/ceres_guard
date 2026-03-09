@@ -184,7 +184,7 @@ div[data-testid="stSlider"] label { color: var(--sky) !important; font-size: 0.7
 
 
 # ── Helper: ensure model is ready ─────────────────────────────────────────
-@st.cache_resource(show_spinner="🌾 Training GrainGuard AI model…")
+@st.cache_resource(show_spinner="🌾 Training CeresGuard AI model…")
 def load_system():
     if not os.path.exists(CSV_PATH):
         generate_synthetic_data()
