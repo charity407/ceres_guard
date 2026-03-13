@@ -1,0 +1,3 @@
+grain_data.csv
+grain_model.joblib
+label_encoders.joblib

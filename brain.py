@@ -21,9 +21,23 @@ GRAIN_TYPES = ["Maize", "Sorghum", "Wheat"]
 SCENARIOS = ["Normal", "Aflatoxin_Mold", "Insect_Parasite"]
 
 RISK_MAP = {
-    "Normal": {"risk_level": "Safe", "threat_type": "No Threat Detected", "color": "green"},
-    "Aflatoxin_Mold": {"risk_level": "Critical", "threat_type": "Aflatoxin / Mold Risk Detected", "color": "red"},
-    "Insect_Parasite": {"risk_level": "Warning", "threat_type": "Weevil / Insect Infestation Detected", "color": "orange"},
+    # keep both the newer descriptive keys as well as the old short forms
+    # so existing data/files that might reference the older format still work.
+    "Normal": {
+        "risk_level": "Safe", "level": "Safe",
+        "threat_type": "No Threat Detected", "threat": "No Threat Detected",
+        "color": "green"
+    },
+    "Aflatoxin_Mold": {
+        "risk_level": "Critical", "level": "Critical",
+        "threat_type": "Aflatoxin / Mold Risk Detected", "threat": "Aflatoxin / Mold Risk Detected",
+        "color": "red"
+    },
+    "Insect_Parasite": {
+        "risk_level": "Warning", "level": "Warning",
+        "threat_type": "Weevil / Insect Infestation Detected", "threat": "Weevil / Insect Infestation Detected",
+        "color": "orange"
+    },
 }
 # ── Synthetic Data Generation ─────────────────────────────────────────────────
 def generate_synthetic_data(n_rows: int = 1000, save_path: str = CSV_PATH) -> pd.DataFrame:
@@ -138,6 +152,8 @@ def predict_grain_risk(
 
     Returns:
         dict with keys: scenario, risk_level, threat_type, color, confidence
+            (for backward compatibility the older keys ``level`` and ``threat``
+            are also preserved).
     """
     if model is None or encoder is None:
         if not os.path.exists(MODEL_PATH):
@@ -154,6 +170,17 @@ def predict_grain_risk(
     confidence = float(max(proba)) * 100
 
     result = RISK_MAP[scenario].copy()
+    # RISK_MAP entries originally used short keys ("level"/"threat") but
+    # were later updated to explicit names.  Maintain backwards-compatibility
+    # while avoiding accidentally overwriting the correct values.
+    #
+    # * If the map already has ``risk_level`` / ``threat_type`` we keep them.
+    # * Otherwise try the old ``level``/``threat`` keys.
+    if "risk_level" not in result or result.get("risk_level") is None:
+        result["risk_level"] = result.get("level")
+    if "threat_type" not in result or result.get("threat_type") is None:
+        result["threat_type"] = result.get("threat")
+
     result["scenario"]   = scenario
     result["confidence"] = round(confidence, 1)
     result["inputs"]     = {

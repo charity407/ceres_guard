@@ -38,7 +38,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="GrainGuard AI — Post-Harvest Protection API",
+    title="CeresGuard AI — Post-Harvest Protection API",
     description="ML-powered grain storage threat detection for Kenyan smallholder farmers.",
     version="1.0.0",
     lifespan=lifespan,
@@ -75,7 +75,7 @@ class PredictionResponse(BaseModel):
 # ── Endpoints ─────────────────────────────────────────────────────────────────
 @app.get("/", tags=["Health"])
 def root():
-    return {"status": "online", "service": "GrainGuard AI", "version": "1.0.0"}
+    return {"status": "online", "service": "CeresGuard AI", "version": "1.0.0"}
 
 
 @app.get("/health", tags=["Health"])
